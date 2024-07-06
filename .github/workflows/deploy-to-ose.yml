@@ -37,7 +37,7 @@ jobs:
       - name: Log in to OpenShift
         uses: redhat-actions/oc-login@v1
         with:
-          openshift_server_url: https://console-openshift-console.apps.openshift.ocp.hossni.store:6443
+          openshift_server_url: https://api.openshift.ocp.hossni.store:6443
           openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: youtube-hossni
