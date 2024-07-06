@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/mahmoudhossni147852/Youtube-Clone'
+                git 'https://github.com/mahmoudhossni147852/Youtube-Clone.git'
             }
         }
         stage('Build Image') {
