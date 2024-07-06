@@ -19,8 +19,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 'current'
-          
+          node-version: '14'  # Example: Use a specific Node.js version that you know is supported
+          always-auth: false
+          check-latest: false
+          token: ${{ secrets.GITHUB_TOKEN }}  # Or use your own token if necessary
+
       - name: Install dependencies
         run: npm install
 
@@ -34,7 +37,7 @@ jobs:
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: hossni  # Change to your OpenShift project namespace
+          namespace: youtube-hossni
           auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Log in to OpenShift internal registry
@@ -64,7 +67,7 @@ jobs:
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: youtube-hossni # Change to your OpenShift project namespace
+          namespace: youtube-hossni
           auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Deploy to OpenShift
