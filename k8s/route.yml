@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: youtube-hossni
+  namespace: youtube-hossni  # Namespace specified here
+spec:
+  to:
+    kind: Service
+    name: youtube-hossni
+    namespace: youtube-hossni  # Namespace specified here
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+  wildcardPolicy: None

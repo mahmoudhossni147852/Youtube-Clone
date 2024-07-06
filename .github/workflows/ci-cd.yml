@@ -28,13 +28,13 @@ jobs:
         run: npm test
 
       - name: Build Docker image
-        run: docker build -t youtube-ui:latest .
+        run: docker build -t youtube-hossni:latest .
 
       - name: Set up OpenShift CLI
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: hossni
+          namespace: hossni  # Change to your OpenShift project namespace
           auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Log in to OpenShift internal registry
@@ -42,10 +42,10 @@ jobs:
           oc whoami -t | docker login -u $(oc whoami) --password-stdin $(oc registry info)
 
       - name: Tag Docker image for OpenShift
-        run: docker tag youtube-ui:latest $(oc registry info)/hossni/youtube-ui:latest
+        run: docker tag youtube-hossni:latest $(oc registry info)/youtube-hossni/youtube-hossni:latest
 
       - name: Push Docker image to OpenShift internal registry
-        run: docker push $(oc registry info)/hossni/youtube-ui:latest
+        run: docker push $(oc registry info)/youtube-hossni/youtube-hossni:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -64,11 +64,12 @@ jobs:
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: hossni
+          namespace: youtube-hossni # Change to your OpenShift project namespace
           auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Deploy to OpenShift
         run: |
-          oc apply -f k8s/deployment.yml
-          oc apply -f k8s/service.yml
-          oc rollout restart deployment youtube-ui
+          oc apply -f k8s/deployment.yml -n youtube-hossni
+          oc apply -f k8s/service.yml -n youtube-hossni
+          oc apply -f k8s/route.yml -n youtube-hossni
+          oc rollout restart deployment youtube-hossni

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtube-hossni
+  namespace: youtube-hossni  # Namespace specified here
+spec:
+  selector:
+    app: youtube-hossni
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+
