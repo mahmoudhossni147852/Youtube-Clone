@@ -44,5 +44,5 @@ jobs:
 
       - name: Pull image from ECR and deploy to OpenShift
         run: |
-          oc import-image $ECR_REPOSITORY:$IMAGE_TAG --confirm -n youtube-hossni
+          oc import-image 316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo/latest --confirm -n youtube-hossni
           oc apply -f /home/ec2-user/youtube-hossni/deployment.yaml -n youtube-hossni
