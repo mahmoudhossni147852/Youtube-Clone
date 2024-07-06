@@ -27,8 +27,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with Jest
+        run: npm test -- --experimental-vm-modules
 
       - name: Build Docker image
         run: docker build -t youtube-hossni:latest .
