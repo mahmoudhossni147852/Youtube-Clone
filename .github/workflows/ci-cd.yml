@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Install Babel packages
-        run: npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-jest
+        run: npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-cli babel-jest
 
       - name: Transpile with Babel
         run: npx babel src --out-dir dist --presets=@babel/preset-env,@babel/preset-react --copy-files
