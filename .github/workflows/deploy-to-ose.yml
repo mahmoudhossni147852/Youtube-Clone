@@ -1,0 +1,48 @@
+name: Deploy to OpenShift with ECR
+
+on:
+  push:
+    branches:
+      - main  # adjust branch name as per your repository
+
+jobs:
+  deploy:
+    name: Deploy to OpenShift with ECR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2  
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: 316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo/myapp
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Log in to OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: youtube-hossni
+
+      - name: Pull image from ECR and deploy to OpenShift
+        run: |
+          oc import-image $ECR_REPOSITORY:$IMAGE_TAG --confirm -n youtube-hossni
+          oc apply -f /home/ec2-user/youtube-hossni/deployment.yaml -n youtube-hossni
