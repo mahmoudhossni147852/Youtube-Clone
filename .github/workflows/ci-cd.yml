@@ -25,9 +25,17 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Build and deploy to OpenShift
-        run: |
-          npm run build  # Adjust build command as per your project setup
-          oc login $OPENSHIFT_SERVER_URL --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
-          oc project youtube-hossni  # Replace with your project namespace
-          oc start-build youtube-clone --from-dir=./build  # Replace 'youtube-clone' with your build config or application name
+      - name: Build the project
+        run: npm run build  # Adjust build command as per your project setup
+      
+      - name: Login to OpenShift
+        run: oc login $OPENSHIFT_SERVER_URL --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
+      
+      - name: Switch to project namespace
+        run: oc project youtube-hossni  # Replace with your project namespace
+      
+      - name: Start build on OpenShift
+        run: oc start-build youtube-clone --from-dir=./build --follow  # Replace 'youtube-clone' with your build config or application name
+      
+      - name: Expose service on OpenShift
+        run: oc expose svc/youtube-clone --port=3000  # Expose on port 3000, replace 'youtube-clone' with your service name
