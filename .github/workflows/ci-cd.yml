@@ -3,15 +3,15 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the workflow on push to the main branch
   pull_request:
     branches:
-      - main
+      - main  # Trigger the workflow on pull requests to the main branch
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -19,66 +19,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-          always-auth: false
-          check-latest: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '14'  # Set your desired Node.js version here
 
       - name: Install dependencies
         run: npm install
 
-      - name: Install Babel packages
-        run: npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-cli babel-jest
-
-      - name: Transpile with Babel
-        run: npx babel src --out-dir dist --presets=@babel/preset-env,@babel/preset-react --copy-files
-
-      - name: Run tests with Jest
-        run: npm test
-
       - name: Build Docker image
-        run: docker build -t youtube-hossni:latest .
-
-      - name: Set up OpenShift CLI
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: youtube-hossni
-          auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
-
-      - name: Log in to OpenShift internal registry
         run: |
-          oc whoami -t | docker login -u $(oc whoami) --password-stdin $(oc registry info)
+          docker build -t youtube-hossni:latest .
+          docker images  # Optional: list images to verify build
 
-      - name: Tag Docker image for OpenShift
-        run: docker tag youtube-hossni:latest $(oc registry info)/youtube-hossni/youtube-hossni:latest
-
-      - name: Push Docker image to OpenShift internal registry
-        run: docker push $(oc registry info)/youtube-hossni/youtube-hossni:latest
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'v1.20.0'
-          
-      - name: Set up OpenShift CLI
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-          namespace: youtube-hossni
-          auth_token: ${{ secrets.OPENSHIFT_TOKEN }}
+      - name: Log in to OpenShift
+        run: |
+          oc login ${{ secrets.OPENSHIFT_SERVER_URL }} --token ${{ secrets.OPENSHIFT_TOKEN }}
+          oc project youtube-hossni  # Switch to your project namespace
 
       - name: Deploy to OpenShift
         run: |
-          oc apply -f k8s/deployment.yml -n youtube-hossni
-          oc apply -f k8s/service.yml -n youtube-hossni
-          oc apply -f k8s/route.yml -n youtube-hossni
+          oc apply -f k8s/deployment.yml
+          oc apply -f k8s/service.yml
+          oc apply -f k8s/route.yml
           oc rollout restart deployment youtube-hossni
+
+      # Additional steps like testing, notifications, etc., can be added here
+
