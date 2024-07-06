@@ -27,8 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests with Jest
-        run: npm test -- --experimental-vm-modules
+      - name: Run tests with Jest and Babel
+        run: |
+          npm install --save-dev @babel/core @babel/preset-env babel-jest
+          npx babel --version  # Check Babel version (optional)
+          npx babel src --out-dir dist --presets=@babel/preset-env --copy-files
+          npm test
 
       - name: Build Docker image
         run: docker build -t youtube-hossni:latest .
