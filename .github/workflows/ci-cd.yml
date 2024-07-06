@@ -3,43 +3,31 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger the workflow on pull requests to the main branch
+      - main  # Adjust branch as per your setup
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+      
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'  # Set your desired Node.js version here
-
+          node-version: '14'  # Adjust Node.js version as needed
+      
       - name: Install dependencies
         run: npm install
-
-      - name: Build Docker image
+      
+      - name: Build and deploy to OpenShift
         run: |
-          docker build -t youtube-hossni:latest .
-          docker images  # Optional: list images to verify build
-
-      - name: Log in to OpenShift
-        run: |
-          oc login ${{ secrets.OPENSHIFT_SERVER_URL }} --token ${{ secrets.OPENSHIFT_TOKEN }}
-          oc project youtube-hossni  # Switch to your project namespace
-
-      - name: Deploy to OpenShift
-        run: |
-          oc apply -f k8s/deployment.yml
-          oc apply -f k8s/service.yml
-          oc apply -f k8s/route.yml
-          oc rollout restart deployment youtube-hossni
-
-      # Additional steps like testing, notifications, etc., can be added here
-
+          npm run build  # Adjust build command as per your project setup
+          oc login $OPENSHIFT_SERVER_URL --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
+          oc project youtube-hossni  # Replace with your project namespace
+          oc start-build youtube-clone --from-dir=./build  # Replace 'youtube-clone' with your build config or application name
