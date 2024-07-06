@@ -28,10 +28,10 @@ jobs:
         run: npm install
 
       - name: Install Babel packages
-        run: npm install --save-dev @babel/core @babel/preset-env @babel/cli babel-jest
+        run: npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-jest
 
       - name: Transpile with Babel
-        run: npx babel src --out-dir dist --presets=@babel/preset-env --copy-files
+        run: npx babel src --out-dir dist --presets=@babel/preset-env,@babel/preset-react --copy-files
 
       - name: Run tests with Jest
         run: npm test
