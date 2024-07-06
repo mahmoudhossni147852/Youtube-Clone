@@ -44,13 +44,8 @@ jobs:
           openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: youtube-hossni
-      - name: Get POD and Trigger Deployment
+          
+      - name: Deploy to OpenShift
         run: |
-          oc get po -A | grep "myapp" | grep Running
           oc rollout latest deployment/myapp -n youtube-hossni
-          sleep 10
-          oc get po -A | grep "myapp" | grep Running -w
-          sleep 60
-          oc get po -A | grep "myapp" | grep Running -w
-          sleep 20
 
