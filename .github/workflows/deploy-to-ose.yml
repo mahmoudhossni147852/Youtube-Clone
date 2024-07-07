@@ -19,15 +19,26 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2  
+          aws-region: us-east-2
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Pull Docker image from ECR
+      - name: Build and push Docker image to ECR
+        env:
+          ECR_REGISTRY: 316012693152.dkr.ecr.us-east-2.amazonaws.com
+          ECR_REPOSITORY: my-ecr-repo
+          IMAGE_TAG: latest
         run: |
-          docker pull 316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo:latest
+          # Build the Docker image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          
+          # Tag the Docker image
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+          # Push the Docker image to ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Install oc
         uses: redhat-actions/openshift-tools-installer@v1
@@ -41,7 +52,7 @@ jobs:
           openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: youtube-hossni
-          
+
       - name: Deploy to OpenShift
         run: |
           oc rollout latest dc/myapp -n youtube-hossni
