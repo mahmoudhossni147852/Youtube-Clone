@@ -51,3 +51,4 @@ jobs:
       - name: Deploy to OpenShift
         run: |
           oc rollout latest dc/myapp -n youtube-hossni 
+
