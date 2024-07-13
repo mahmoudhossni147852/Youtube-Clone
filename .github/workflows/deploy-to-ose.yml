@@ -53,4 +53,4 @@ jobs:
 
       - name: Deploy to OpenShift
         run: |
-          oc rollout $IMAGE_TAG dc/myapp -n youtube-hossni 
+          oc rollout  dc/myapp -n youtube-hossni 
