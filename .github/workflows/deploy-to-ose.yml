@@ -53,6 +53,6 @@ jobs:
 
       - name: Deploy to OpenShift
         run: |
-         oc set image deployment myapp myapp=316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo:$IMAGE_TAG -n youtube-hossni 
+         oc set image deploymentconfig myapp myapp=316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo:$IMAGE_TAG -n youtube-hossni 
         
          # oc rollout  dc/myapp -n youtube-hossni 
