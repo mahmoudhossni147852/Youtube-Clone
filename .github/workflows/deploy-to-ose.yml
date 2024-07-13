@@ -26,16 +26,17 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: create image tag
+        id: tag
         shell: bash
         run: |
-         echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
-         echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV" 
+         echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_OUTPUT"
+         echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_OUTPUT" 
 
       - name: Build and push Docker image to ECR
         env:
           ECR_REGISTRY: 316012693152.dkr.ecr.us-east-2.amazonaws.com
           ECR_REPOSITORY: my-ecr-repo
-          IMAGE_TAG: ${{ env.branch }}-${{ env.sha_short }}
+          IMAGE_TAG: ${{ steps.tag.outputs.branch }}-${{ steps.tag.outputs.sha_short }}
         run: |
           # Build the Docker image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -53,6 +54,6 @@ jobs:
 
       - name: Deploy to OpenShift
         run: |
-         oc set image deploymentconfig myapp myapp=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -n youtube-hossni 
+         oc set image deploymentconfig myapp myapp=316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo:${{ steps.tag.outputs.branch }}-${{ steps.tag.outputs.sha_short }} -n youtube-hossni 
         
          # oc rollout  dc/myapp -n youtube-hossni 
