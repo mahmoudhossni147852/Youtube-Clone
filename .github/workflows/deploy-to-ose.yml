@@ -1,5 +1,4 @@
 name: Deploy to OpenShift with ECR
-
 on:
   push:
     branches:
