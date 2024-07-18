@@ -55,4 +55,3 @@ jobs:
         run: |
          oc set image deploymentconfig myapp myapp=316012693152.dkr.ecr.us-east-2.amazonaws.com/my-ecr-repo:${{ steps.tag.outputs.branch }}-${{ steps.tag.outputs.sha_short }} -n youtube-hossni 
 
-
